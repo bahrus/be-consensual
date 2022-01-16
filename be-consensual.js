@@ -14,10 +14,8 @@ export class BeConsensualController {
         addCSSListener(id, proxy, `${elementSelector}${onStateSelector}`, (e) => {
             if (e.animationName !== id)
                 return;
-            console.log(`found ${elementSelector}${onStateSelector}`);
             proxy.matchCount++;
             setTimeout(() => {
-                console.log('downward flow in progress: ', proxy.downwardFlowInProgress);
                 if (this.downwardFlowInProgress)
                     return;
                 proxy.matchCountEcho++;
@@ -27,10 +25,8 @@ export class BeConsensualController {
         addCSSListener(id2, proxy, `${elementSelector}${offStateSelector}`, (e) => {
             if (e.animationName !== id2)
                 return;
-            console.log(`found ${elementSelector}${offStateSelector}`);
             proxy.matchCount++;
             setTimeout(() => {
-                console.log('downward flow in progress: ', proxy.downwardFlowInProgress);
                 if (this.downwardFlowInProgress)
                     return;
                 proxy.matchCountEcho++;
@@ -38,7 +34,6 @@ export class BeConsensualController {
         });
     }
     onMatchCountEchoChange({ matchCountEcho, matchCount }) {
-        console.log({ matchCountEcho, matchCount });
         if (matchCountEcho !== matchCount)
             return;
         this.evaluateState(this);
@@ -115,7 +110,6 @@ define({
                 changeEvent: 'input',
                 downwardFlowInProgress: false,
             },
-            // intro: 'intro',
         },
         actions: {
             onElementSelector: 'elementSelector',

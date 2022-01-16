@@ -15,10 +15,8 @@ export class BeConsensualController implements BeConsensualActions{
         const id  = proxy.id;
         addCSSListener(id, proxy, `${elementSelector}${onStateSelector}`, (e: AnimationEvent) => {
             if (e.animationName !== id) return;
-            console.log(`found ${elementSelector}${onStateSelector}`)
             proxy.matchCount!++;
             setTimeout(() => {
-                console.log('downward flow in progress: ', proxy.downwardFlowInProgress);
                 if(this.downwardFlowInProgress) return;
                 proxy.matchCountEcho!++;
             }, debounceDelay!);
@@ -26,10 +24,8 @@ export class BeConsensualController implements BeConsensualActions{
         const id2 = id + '2';
         addCSSListener(id2, proxy, `${elementSelector}${offStateSelector}`, (e: AnimationEvent) => {
             if (e.animationName !== id2) return;
-            console.log(`found ${elementSelector}${offStateSelector}`);
             proxy.matchCount!++;
             setTimeout(() => {
-                console.log('downward flow in progress: ', proxy.downwardFlowInProgress);
                 if(this.downwardFlowInProgress) return;
                 proxy.matchCountEcho!++;
             }, debounceDelay!);
@@ -37,7 +33,6 @@ export class BeConsensualController implements BeConsensualActions{
     }
 
     onMatchCountEchoChange({matchCountEcho, matchCount}: this): void {
-        console.log({matchCountEcho, matchCount});
         if(matchCountEcho !== matchCount) return;
         this.evaluateState(this);
     }
@@ -118,7 +113,6 @@ define<BeConsensualProps & BeDecoratedProps<BeConsensualProps, BeConsensualActio
                 changeEvent: 'input',
                 downwardFlowInProgress: false,
             },
-            // intro: 'intro',
         },
         actions: {
             onElementSelector: 'elementSelector',
