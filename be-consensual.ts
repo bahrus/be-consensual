@@ -1,7 +1,7 @@
 import {define, BeDecoratedProps} from 'be-decorated/be-decorated.js';
 import {BeConsensualVirtualProps, BeConsensualActions, BeConsensualProps} from './types';
 import {register} from 'be-hive/register.js';
-import {addCSSListener} from 'xtal-element/lib/observeCSSSelector.js';
+import {addCSSListener} from 'xtal-element/lib/observeCssSelector.js';
 
 export class BeConsensualController implements BeConsensualActions{
     // #target!: Element;

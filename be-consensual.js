@@ -1,6 +1,6 @@
 import { define } from 'be-decorated/be-decorated.js';
 import { register } from 'be-hive/register.js';
-import { addCSSListener } from 'xtal-element/lib/observeCSSSelector.js';
+import { addCSSListener } from 'xtal-element/lib/observeCssSelector.js';
 export class BeConsensualController {
     // #target!: Element;
     // intro(proxy: Element & BeConsensualVirtualProps, target: Element, beDecorProps: BeDecoratedProps){
