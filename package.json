@@ -1,19 +1,41 @@
 {
   "name": "be-consensual",
   "version": "0.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Provides two-way binding between a checkbox (or other (custom) DOM elements) and surrounding checkboxes (or other (custom) DOM elements).",
+  "main": "be-consensual.js",
+  "module": "be-consensual.js",
+  "keywords": [
+    "web components",
+    "web component",
+    "custom elements",
+    "custom element",
+    "consensus",
+    "indeterminate",
+    "tri-state"
+  ],
   "dependencies": {
     "be-decorated": "0.0.62",
     "be-hive": "0.0.17",
     "xtal-element": "0.0.459"
   },
   "devDependencies": {
-    "xtal-test": "0.0.54"
+    "xtal-test": "0.0.54",
+    "@skypack/package-check": "0.2.2",
+    "@custom-elements-manifest/analyzer": "0.5.7"
   },
+  "exports":{
+    ".": "./be-consensual.js",
+    "./be-consensual.js": "./be-consensual.js"
+  },
+  "files": [
+    "*.*"
+  ],
+  "types": "./types.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "serve": "node node_modules/xtal-test/serve.js"
+    "serve": "node node_modules/xtal-test/serve.js",
+    "package-check": "package-check",
+    "doc": "custom-elements-manifest analyze"
   },
   "repository": {
     "type": "git",
