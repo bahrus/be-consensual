@@ -1,6 +1,6 @@
 {
   "name": "be-consensual",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Provides two-way binding between a checkbox (or other (custom) DOM elements) and surrounding checkboxes (or other (custom) DOM elements).",
   "main": "be-consensual.js",
   "module": "be-consensual.js",
