@@ -39,11 +39,14 @@ export class BeConsensualController implements BeConsensualActions{
 
     onChangeEvent({proxy, changeEvent, selfTrueVal, selfFalseVal, selfProp, trueVal, falseVal, prop}: this): void {
         proxy.addEventListener(changeEvent!, (e) => {
-            const selfVal = (<any>proxy)[selfProp];
+            console.log({changeEvent, selfTrueVal, selfFalseVal, selfProp, trueVal, falseVal, prop});
+            const selfVal = (<any>proxy)[selfProp!];
             const val = selfVal === selfTrueVal ? trueVal : falseVal;
+            console.log(val);
             proxy.downwardFlowInProgress = true;
             (proxy.getRootNode() as DocumentFragment).querySelectorAll(proxy.elementSelector!).forEach((el) => {
-                (<any>el)[prop] = val;
+                console.log({el, val, prop});
+                (<any>el)[prop!] = val;
             });
             proxy.downwardFlowInProgress = false;
         });

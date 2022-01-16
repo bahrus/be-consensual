@@ -40,10 +40,13 @@ export class BeConsensualController {
     }
     onChangeEvent({ proxy, changeEvent, selfTrueVal, selfFalseVal, selfProp, trueVal, falseVal, prop }) {
         proxy.addEventListener(changeEvent, (e) => {
+            console.log({ changeEvent, selfTrueVal, selfFalseVal, selfProp, trueVal, falseVal, prop });
             const selfVal = proxy[selfProp];
             const val = selfVal === selfTrueVal ? trueVal : falseVal;
+            console.log(val);
             proxy.downwardFlowInProgress = true;
             proxy.getRootNode().querySelectorAll(proxy.elementSelector).forEach((el) => {
+                console.log({ el, val, prop });
                 el[prop] = val;
             });
             proxy.downwardFlowInProgress = false;
