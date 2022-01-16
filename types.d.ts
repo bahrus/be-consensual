@@ -11,7 +11,8 @@ export interface BeConsensualVirtualProps{
     selfIndeterminateProp: string,
     selfTrueVal: any,
     selfFalseVal: any,
-    selfIndeterminateVal?: any,
+    selfIndeterminateTrueVal?: any,
+    selfIndeterminateFalseVal?: any,
     matchCount?: number,
     matchCountEcho?: number,
     debounceDelay?: number,
@@ -28,4 +29,5 @@ export interface BeConsensualActions{
     evaluateState(self: this): void;
     onMatchCountEchoChange(self: this): void;
     onChangeEvent(self: this): void;
+    // intro(proxy: Element & BeConsensualVirtualProps, target: Element, beDecorProps: BeDecoratedProps): void;
 }

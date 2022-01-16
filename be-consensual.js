@@ -2,6 +2,10 @@ import { define } from 'be-decorated/be-decorated.js';
 import { register } from 'be-hive/register.js';
 import { addCSSListener } from 'xtal-element/lib/observeCSSSelector.js';
 export class BeConsensualController {
+    // #target!: Element;
+    // intro(proxy: Element & BeConsensualVirtualProps, target: Element, beDecorProps: BeDecoratedProps){
+    //     this.#target = target;
+    // }
     onElementSelector({ proxy, elementSelector, onStateSelector, offStateSelector, debounceDelay }) {
         if (!proxy.id) {
             proxy.id = 'a_' + (new Date()).valueOf();
@@ -55,7 +59,6 @@ export class BeConsensualController {
         let hasTrue = false;
         let hasFalse = false;
         let isIndeterminate = false;
-        ;
         for (const element of elements) {
             if (element.matches(onStateSelector)) {
                 hasTrue = true;
@@ -69,12 +72,14 @@ export class BeConsensualController {
             }
         }
         if (isIndeterminate) {
-            proxy[proxy.selfIndeterminateProp] = proxy.selfIndeterminateVal;
+            proxy[proxy.selfIndeterminateProp] = proxy.selfIndeterminateTrueVal;
         }
         else if (hasTrue) {
+            proxy[proxy.selfIndeterminateProp] = proxy.selfIndeterminateFalseVal;
             proxy[proxy.selfProp] = proxy.selfTrueVal;
         }
         else if (hasFalse) {
+            proxy[proxy.selfIndeterminateProp] = proxy.selfIndeterminateFalseVal;
             proxy[proxy.selfProp] = proxy.selfFalseVal;
         }
     }
@@ -90,7 +95,7 @@ define({
             upgrade,
             virtualProps: [
                 'elementSelector', 'onStateSelector', 'offStateSelector', 'prop', 'trueVal', 'falseVal',
-                'selfProp', 'selfTrueVal', 'selfFalseVal', 'selfIndeterminateProp', 'selfIndeterminateVal',
+                'selfProp', 'selfTrueVal', 'selfFalseVal', 'selfIndeterminateProp', 'selfIndeterminateTrueVal', 'selfIndeterminateFalseVal',
                 'matchCount', 'matchCountEcho', 'debounceDelay', 'changeEvent', 'downwardFlowInProgress'
             ],
             proxyPropDefaults: {
@@ -105,10 +110,12 @@ define({
                 selfTrueVal: true,
                 selfFalseVal: false,
                 selfIndeterminateProp: 'indeterminate',
-                selfIndeterminateVal: true,
+                selfIndeterminateTrueVal: true,
+                selfIndeterminateFalseVal: false,
                 changeEvent: 'input',
                 downwardFlowInProgress: false,
             },
+            // intro: 'intro',
         },
         actions: {
             onElementSelector: 'elementSelector',

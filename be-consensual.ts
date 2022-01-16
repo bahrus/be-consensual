@@ -4,6 +4,10 @@ import {register} from 'be-hive/register.js';
 import {addCSSListener} from 'xtal-element/lib/observeCSSSelector.js';
 
 export class BeConsensualController implements BeConsensualActions{
+    // #target!: Element;
+    // intro(proxy: Element & BeConsensualVirtualProps, target: Element, beDecorProps: BeDecoratedProps){
+    //     this.#target = target;
+    // }
     onElementSelector({proxy, elementSelector, onStateSelector, offStateSelector, debounceDelay}: this): void {
         if(!proxy.id){
             proxy.id = 'a_' + (new Date()).valueOf();
@@ -54,7 +58,7 @@ export class BeConsensualController implements BeConsensualActions{
         const elements = Array.from((proxy.getRootNode() as DocumentFragment).querySelectorAll(elementSelector!));
         let hasTrue = false;
         let hasFalse = false;
-        let isIndeterminate = false;;
+        let isIndeterminate = false;
         for(const element of elements){
             if(element.matches(onStateSelector!)){
                 hasTrue = true;
@@ -67,10 +71,12 @@ export class BeConsensualController implements BeConsensualActions{
             }
         }
         if(isIndeterminate){
-            (<any>proxy)[proxy.selfIndeterminateProp!] = proxy.selfIndeterminateVal;
+            (<any>proxy)[proxy.selfIndeterminateProp!] = proxy.selfIndeterminateTrueVal;
         }else if(hasTrue){
+            (<any>proxy)[proxy.selfIndeterminateProp!] = proxy.selfIndeterminateFalseVal;
             (<any>proxy)[proxy.selfProp!] = proxy.selfTrueVal;
         }else if(hasFalse){
+            (<any>proxy)[proxy.selfIndeterminateProp!] = proxy.selfIndeterminateFalseVal;
             (<any>proxy)[proxy.selfProp!] = proxy.selfFalseVal!;
         }
     }
@@ -92,7 +98,7 @@ define<BeConsensualProps & BeDecoratedProps<BeConsensualProps, BeConsensualActio
             upgrade,
             virtualProps: [
                 'elementSelector', 'onStateSelector', 'offStateSelector', 'prop', 'trueVal', 'falseVal', 
-                'selfProp', 'selfTrueVal', 'selfFalseVal', 'selfIndeterminateProp', 'selfIndeterminateVal',
+                'selfProp', 'selfTrueVal', 'selfFalseVal', 'selfIndeterminateProp', 'selfIndeterminateTrueVal', 'selfIndeterminateFalseVal',
                 'matchCount', 'matchCountEcho', 'debounceDelay', 'changeEvent', 'downwardFlowInProgress'
             ],
             proxyPropDefaults:{
@@ -107,11 +113,12 @@ define<BeConsensualProps & BeDecoratedProps<BeConsensualProps, BeConsensualActio
                 selfTrueVal: true,
                 selfFalseVal: false,
                 selfIndeterminateProp: 'indeterminate',
-                selfIndeterminateVal: true,
+                selfIndeterminateTrueVal: true,
+                selfIndeterminateFalseVal: false,
                 changeEvent: 'input',
                 downwardFlowInProgress: false,
             },
-            
+            // intro: 'intro',
         },
         actions: {
             onElementSelector: 'elementSelector',
