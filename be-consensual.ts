@@ -8,7 +8,7 @@ export class BeConsensualController implements BeConsensualActions{
     // intro(proxy: Element & BeConsensualVirtualProps, target: Element, beDecorProps: BeDecoratedProps){
     //     this.#target = target;
     // }
-    onElementSelector({proxy, memberAttr: elementSelector, onStateSelector, offStateSelector, debounceDelay}: this): void {
+    onMemberAttr({proxy, memberAttr: elementSelector, debounceDelay}: this): void {
         if(!proxy.id){
             proxy.id = 'a_' + (new Date()).valueOf();
         }
@@ -94,14 +94,12 @@ define<BeConsensualProps & BeDecoratedProps<BeConsensualProps, BeConsensualActio
             ifWantsToBe,
             upgrade,
             virtualProps: [
-                'elementSelector', 'onStateSelector', 'offStateSelector', 'prop', 'trueVal', 'falseVal', 
+                'memberAttr', 'memberProp', 'memberTrueVal', 'memberFalseVal', 
                 'selfProp', 'selfTrueVal', 'selfFalseVal', 'selfIndeterminateProp', 'selfIndeterminateTrueVal', 'selfIndeterminateFalseVal',
                 'matchCount', 'matchCountEcho', 'debounceDelay', 'changeEvent', 'downwardFlowInProgress'
             ],
             proxyPropDefaults:{
                 memberAttr: 'be-consensual-member',
-                onStateSelector: ':checked',
-                offStateSelector: ':not(:checked)',
                 matchCount: 0,
                 matchCountEcho: 0,
                 memberProp: 'checked',
@@ -118,7 +116,7 @@ define<BeConsensualProps & BeDecoratedProps<BeConsensualProps, BeConsensualActio
             },
         },
         actions: {
-            onElementSelector: 'elementSelector',
+            onMemberAttr: 'memberAttr',
             onMatchCountEchoChange: {
                 ifAllOf: ['matchCount', 'matchCountEcho'],
             },

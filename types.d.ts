@@ -2,8 +2,6 @@ import {BeDecoratedProps} from 'be-decorated/types';
 
 export interface BeConsensualVirtualProps{
     memberAttr?: string,
-    onStateSelector?: string,
-    offStateSelector?: string,
     memberProp?: string,
     memberTrueVal?: any,
     memberFalseVal?: any,
@@ -25,7 +23,7 @@ export interface BeConsensualProps extends BeConsensualVirtualProps{
 }
 
 export interface BeConsensualActions{
-    onElementSelector(self: this): void;
+    onMemberAttr(self: this): void;
     evaluateState(self: this): void;
     onMatchCountEchoChange(self: this): void;
     onChangeEvent(self: this): void;
