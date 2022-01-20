@@ -6,17 +6,17 @@ export class BeConsensualController {
     // intro(proxy: Element & BeConsensualVirtualProps, target: Element, beDecorProps: BeDecoratedProps){
     //     this.#target = target;
     // }
-    onMemberAttr({ proxy, memberAttr: elementSelector, debounceDelay }) {
+    onMemberAttr({ proxy, memberAttr, debounceDelay }) {
         if (!proxy.id) {
             proxy.id = 'a_' + (new Date()).valueOf();
         }
         const id = proxy.id;
-        addCSSListener(id, proxy, `${elementSelector}`, (e) => {
+        addCSSListener(id, proxy, `[${memberAttr}]`, (e) => {
             if (e.animationName !== id)
                 return;
             const target = e.target;
-            target.setAttribute(elementSelector.replace('be-', 'is-'), '');
-            target.removeAttribute(elementSelector);
+            target.setAttribute(memberAttr.replace('be-', 'is-'), '');
+            target.removeAttribute(memberAttr);
             proxy.matchCount++;
             setTimeout(() => {
                 if (this.downwardFlowInProgress)

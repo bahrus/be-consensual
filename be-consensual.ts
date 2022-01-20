@@ -8,16 +8,16 @@ export class BeConsensualController implements BeConsensualActions{
     // intro(proxy: Element & BeConsensualVirtualProps, target: Element, beDecorProps: BeDecoratedProps){
     //     this.#target = target;
     // }
-    onMemberAttr({proxy, memberAttr: elementSelector, debounceDelay}: this): void {
+    onMemberAttr({proxy, memberAttr, debounceDelay}: this): void {
         if(!proxy.id){
             proxy.id = 'a_' + (new Date()).valueOf();
         }
         const id  = proxy.id;
-        addCSSListener(id, proxy, `${elementSelector}`, (e: AnimationEvent) => {
+        addCSSListener(id, proxy, `[${memberAttr}]`, (e: AnimationEvent) => {
             if (e.animationName !== id) return;
             const target = e.target as Element;
-            target.setAttribute(elementSelector!.replace('be-', 'is-'), '');
-            target.removeAttribute(elementSelector!);
+            target.setAttribute(memberAttr!.replace('be-', 'is-'), '');
+            target.removeAttribute(memberAttr!);
             proxy.matchCount!++;
             setTimeout(() => {
                 if(this.downwardFlowInProgress) return;
