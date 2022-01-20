@@ -6,25 +6,17 @@ export class BeConsensualController {
     // intro(proxy: Element & BeConsensualVirtualProps, target: Element, beDecorProps: BeDecoratedProps){
     //     this.#target = target;
     // }
-    onElementSelector({ proxy, elementSelector, onStateSelector, offStateSelector, debounceDelay }) {
+    onElementSelector({ proxy, memberAttr: elementSelector, onStateSelector, offStateSelector, debounceDelay }) {
         if (!proxy.id) {
             proxy.id = 'a_' + (new Date()).valueOf();
         }
         const id = proxy.id;
-        addCSSListener(id, proxy, `${elementSelector}${onStateSelector}`, (e) => {
+        addCSSListener(id, proxy, `${elementSelector}`, (e) => {
             if (e.animationName !== id)
                 return;
-            proxy.matchCount++;
-            setTimeout(() => {
-                if (this.downwardFlowInProgress)
-                    return;
-                proxy.matchCountEcho++;
-            }, debounceDelay);
-        });
-        const id2 = id + '2';
-        addCSSListener(id2, proxy, `${elementSelector}${offStateSelector}`, (e) => {
-            if (e.animationName !== id2)
-                return;
+            const target = e.target;
+            target.setAttribute(elementSelector.replace('be-', 'is-'), '');
+            target.removeAttribute(elementSelector);
             proxy.matchCount++;
             setTimeout(() => {
                 if (this.downwardFlowInProgress)
@@ -38,47 +30,53 @@ export class BeConsensualController {
             return;
         this.evaluateState(this);
     }
-    onChangeEvent({ proxy, changeEvent, selfTrueVal, selfFalseVal, selfProp, trueVal, falseVal, prop }) {
+    onChangeEvent({ proxy, changeEvent, selfTrueVal, selfFalseVal, selfProp, memberTrueVal: trueVal, memberFalseVal: falseVal, memberProp: prop }) {
         proxy.addEventListener(changeEvent, (e) => {
             console.log({ changeEvent, selfTrueVal, selfFalseVal, selfProp, trueVal, falseVal, prop });
             const selfVal = proxy[selfProp];
             const val = selfVal === selfTrueVal ? trueVal : falseVal;
             console.log(val);
             proxy.downwardFlowInProgress = true;
-            proxy.getRootNode().querySelectorAll(proxy.elementSelector).forEach((el) => {
+            proxy.getRootNode().querySelectorAll(proxy.memberAttr.replace('be-', 'is-')).forEach((el) => {
                 console.log({ el, val, prop });
                 el[prop] = val;
             });
             proxy.downwardFlowInProgress = false;
         });
     }
-    evaluateState({ elementSelector, onStateSelector, proxy }) {
-        const elements = Array.from(proxy.getRootNode().querySelectorAll(elementSelector));
+    evaluateState({ memberAttr, memberProp, memberFalseVal, memberTrueVal, proxy }) {
+        const elements = Array.from(proxy.getRootNode().querySelectorAll('[' + memberAttr.replace('be-', 'is-') + ']'));
         let hasTrue = false;
         let hasFalse = false;
         let isIndeterminate = false;
         for (const element of elements) {
-            if (element.matches(onStateSelector)) {
+            const aElement = element;
+            if (aElement[memberProp] === memberTrueVal) {
                 hasTrue = true;
             }
-            else {
+            else if (aElement[memberProp] === memberFalseVal) {
                 hasFalse = true;
+            }
+            else {
+                isIndeterminate = true;
+                break;
             }
             if (hasTrue && hasFalse) {
                 isIndeterminate = true;
                 break;
             }
         }
+        const aProxy = proxy;
         if (isIndeterminate) {
-            proxy[proxy.selfIndeterminateProp] = proxy.selfIndeterminateTrueVal;
+            aProxy[proxy.selfIndeterminateProp] = proxy.selfIndeterminateTrueVal;
         }
         else if (hasTrue) {
-            proxy[proxy.selfIndeterminateProp] = proxy.selfIndeterminateFalseVal;
-            proxy[proxy.selfProp] = proxy.selfTrueVal;
+            aProxy[proxy.selfIndeterminateProp] = proxy.selfIndeterminateFalseVal;
+            aProxy[proxy.selfProp] = proxy.selfTrueVal;
         }
         else if (hasFalse) {
-            proxy[proxy.selfIndeterminateProp] = proxy.selfIndeterminateFalseVal;
-            proxy[proxy.selfProp] = proxy.selfFalseVal;
+            aProxy[proxy.selfIndeterminateProp] = proxy.selfIndeterminateFalseVal;
+            aProxy[proxy.selfProp] = proxy.selfFalseVal;
         }
     }
 }
@@ -97,13 +95,14 @@ define({
                 'matchCount', 'matchCountEcho', 'debounceDelay', 'changeEvent', 'downwardFlowInProgress'
             ],
             proxyPropDefaults: {
+                memberAttr: 'be-consensual-member',
                 onStateSelector: ':checked',
                 offStateSelector: ':not(:checked)',
                 matchCount: 0,
                 matchCountEcho: 0,
-                prop: 'checked',
-                trueVal: true,
-                falseVal: false,
+                memberProp: 'checked',
+                memberTrueVal: true,
+                memberFalseVal: false,
                 selfProp: 'checked',
                 selfTrueVal: true,
                 selfFalseVal: false,

@@ -8,22 +8,16 @@ export class BeConsensualController implements BeConsensualActions{
     // intro(proxy: Element & BeConsensualVirtualProps, target: Element, beDecorProps: BeDecoratedProps){
     //     this.#target = target;
     // }
-    onElementSelector({proxy, elementSelector, onStateSelector, offStateSelector, debounceDelay}: this): void {
+    onElementSelector({proxy, memberAttr: elementSelector, onStateSelector, offStateSelector, debounceDelay}: this): void {
         if(!proxy.id){
             proxy.id = 'a_' + (new Date()).valueOf();
         }
         const id  = proxy.id;
-        addCSSListener(id, proxy, `${elementSelector}${onStateSelector}`, (e: AnimationEvent) => {
+        addCSSListener(id, proxy, `${elementSelector}`, (e: AnimationEvent) => {
             if (e.animationName !== id) return;
-            proxy.matchCount!++;
-            setTimeout(() => {
-                if(this.downwardFlowInProgress) return;
-                proxy.matchCountEcho!++;
-            }, debounceDelay!);
-        });
-        const id2 = id + '2';
-        addCSSListener(id2, proxy, `${elementSelector}${offStateSelector}`, (e: AnimationEvent) => {
-            if (e.animationName !== id2) return;
+            const target = e.target as Element;
+            target.setAttribute(elementSelector!.replace('be-', 'is-'), '');
+            target.removeAttribute(elementSelector!);
             proxy.matchCount!++;
             setTimeout(() => {
                 if(this.downwardFlowInProgress) return;
@@ -37,14 +31,14 @@ export class BeConsensualController implements BeConsensualActions{
         this.evaluateState(this);
     }
 
-    onChangeEvent({proxy, changeEvent, selfTrueVal, selfFalseVal, selfProp, trueVal, falseVal, prop}: this): void {
+    onChangeEvent({proxy, changeEvent, selfTrueVal, selfFalseVal, selfProp, memberTrueVal: trueVal, memberFalseVal: falseVal, memberProp: prop}: this): void {
         proxy.addEventListener(changeEvent!, (e) => {
             console.log({changeEvent, selfTrueVal, selfFalseVal, selfProp, trueVal, falseVal, prop});
             const selfVal = (<any>proxy)[selfProp!];
             const val = selfVal === selfTrueVal ? trueVal : falseVal;
             console.log(val);
             proxy.downwardFlowInProgress = true;
-            (proxy.getRootNode() as DocumentFragment).querySelectorAll(proxy.elementSelector!).forEach((el) => {
+            (proxy.getRootNode() as DocumentFragment).querySelectorAll(proxy.memberAttr!.replace('be-', 'is-')).forEach((el) => {
                 console.log({el, val, prop});
                 (<any>el)[prop!] = val;
             });
@@ -52,30 +46,35 @@ export class BeConsensualController implements BeConsensualActions{
         });
     }
 
-    evaluateState({elementSelector, onStateSelector, proxy}: this): void {
-        const elements = Array.from((proxy.getRootNode() as DocumentFragment).querySelectorAll(elementSelector!));
+    evaluateState({memberAttr, memberProp, memberFalseVal, memberTrueVal, proxy}: this): void {
+        const elements = Array.from((proxy.getRootNode() as DocumentFragment).querySelectorAll('[' + memberAttr!.replace('be-', 'is-') + ']'));
         let hasTrue = false;
         let hasFalse = false;
         let isIndeterminate = false;
         for(const element of elements){
-            if(element.matches(onStateSelector!)){
+            const aElement = element as any;
+            if(aElement[memberProp!] === memberTrueVal){
                 hasTrue = true;
-            }else{
+            }else if(aElement[memberProp!] === memberFalseVal){
                 hasFalse = true;
+            }else{
+                isIndeterminate = true;
+                break;
             }
             if(hasTrue && hasFalse){
                 isIndeterminate = true;
                 break;
             }
         }
+        const aProxy = proxy as any;
         if(isIndeterminate){
-            (<any>proxy)[proxy.selfIndeterminateProp!] = proxy.selfIndeterminateTrueVal;
+            aProxy[proxy.selfIndeterminateProp!] = proxy.selfIndeterminateTrueVal;
         }else if(hasTrue){
-            (<any>proxy)[proxy.selfIndeterminateProp!] = proxy.selfIndeterminateFalseVal;
-            (<any>proxy)[proxy.selfProp!] = proxy.selfTrueVal;
+            aProxy[proxy.selfIndeterminateProp!] = proxy.selfIndeterminateFalseVal;
+            aProxy[proxy.selfProp!] = proxy.selfTrueVal;
         }else if(hasFalse){
-            (<any>proxy)[proxy.selfIndeterminateProp!] = proxy.selfIndeterminateFalseVal;
-            (<any>proxy)[proxy.selfProp!] = proxy.selfFalseVal!;
+            aProxy[proxy.selfIndeterminateProp!] = proxy.selfIndeterminateFalseVal;
+            aProxy[proxy.selfProp!] = proxy.selfFalseVal!;
         }
     }
 }
@@ -100,13 +99,14 @@ define<BeConsensualProps & BeDecoratedProps<BeConsensualProps, BeConsensualActio
                 'matchCount', 'matchCountEcho', 'debounceDelay', 'changeEvent', 'downwardFlowInProgress'
             ],
             proxyPropDefaults:{
+                memberAttr: 'be-consensual-member',
                 onStateSelector: ':checked',
                 offStateSelector: ':not(:checked)',
                 matchCount: 0,
                 matchCountEcho: 0,
-                prop: 'checked',
-                trueVal: true,
-                falseVal: false,
+                memberProp: 'checked',
+                memberTrueVal: true,
+                memberFalseVal: false,
                 selfProp: 'checked',
                 selfTrueVal: true,
                 selfFalseVal: false,

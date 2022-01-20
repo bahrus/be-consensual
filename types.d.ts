@@ -1,12 +1,12 @@
 import {BeDecoratedProps} from 'be-decorated/types';
 
 export interface BeConsensualVirtualProps{
-    elementSelector?: string,
+    memberAttr?: string,
     onStateSelector?: string,
     offStateSelector?: string,
-    prop?: string,
-    trueVal?: any,
-    falseVal?: any,
+    memberProp?: string,
+    memberTrueVal?: any,
+    memberFalseVal?: any,
     selfProp?: string,
     selfIndeterminateProp?: string,
     selfTrueVal?: any,
