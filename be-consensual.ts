@@ -2,13 +2,15 @@ import {define, BeDecoratedProps} from 'be-decorated/be-decorated.js';
 import {BeConsensualVirtualProps, BeConsensualActions, BeConsensualProps} from './types';
 import {register} from 'be-hive/register.js';
 import {addCSSListener} from 'xtal-element/lib/observeCssSelector.js';
+import {subscribe} from 'trans-render/lib/subscribe.js';
+
 
 export class BeConsensualController implements BeConsensualActions{
-    // #target!: Element;
-    // intro(proxy: Element & BeConsensualVirtualProps, target: Element, beDecorProps: BeDecoratedProps){
-    //     this.#target = target;
-    // }
-    onMemberAttr({proxy, memberAttr, debounceDelay}: this): void {
+    #target!: Element;
+    intro(proxy: Element & BeConsensualVirtualProps, target: Element, beDecorProps: BeDecoratedProps){
+        this.#target = target;
+    }
+    onMemberOptions({proxy, memberAttr, debounceDelay, memberProp}: this): void {
         if(!proxy.id){
             proxy.id = 'a_' + (new Date()).valueOf();
         }
@@ -18,9 +20,13 @@ export class BeConsensualController implements BeConsensualActions{
             const target = e.target as Element;
             target.setAttribute(memberAttr!.replace('be-', 'is-'), '');
             target.removeAttribute(memberAttr!);
+            subscribe(target, memberProp!, () => {
+                if(proxy.downwardFlowInProgress) return;
+                this.evaluateState(this);
+            });
             proxy.matchCount!++;
             setTimeout(() => {
-                if(this.downwardFlowInProgress) return;
+                
                 proxy.matchCountEcho!++;
             }, debounceDelay!);
         });
@@ -31,27 +37,45 @@ export class BeConsensualController implements BeConsensualActions{
         this.evaluateState(this);
     }
 
-    onChangeEvent({proxy, changeEvent, selfTrueVal, selfFalseVal, selfProp, memberTrueVal: trueVal, memberFalseVal: falseVal, memberProp: prop}: this): void {
-        proxy.addEventListener(changeEvent!, (e) => {
-            console.log({changeEvent, selfTrueVal, selfFalseVal, selfProp, trueVal, falseVal, prop});
-            const selfVal = (<any>proxy)[selfProp!];
-            const val = selfVal === selfTrueVal ? trueVal : falseVal;
-            console.log(val);
+    // onChangeEvent({proxy, changeEvent, selfTrueVal, selfFalseVal, selfProp, memberTrueVal: trueVal, memberFalseVal: falseVal, memberProp: prop}: this): void {
+    //     proxy.addEventListener(changeEvent!, (e) => {
+    //         console.log({changeEvent, selfTrueVal, selfFalseVal, selfProp, trueVal, falseVal, prop});
+    //         const selfVal = (<any>proxy)[selfProp!];
+    //         const val = selfVal === selfTrueVal ? trueVal : falseVal;
+    //         console.log(val);
+    //         proxy.downwardFlowInProgress = true;
+    //         (proxy.getRootNode() as DocumentFragment).querySelectorAll(proxy.memberAttr!.replace('be-', 'is-')).forEach((el) => {
+    //             console.log({el, val, prop});
+    //             (<any>el)[prop!] = val;
+    //         });
+    //         proxy.downwardFlowInProgress = false;
+    //     });
+    // }
+
+    onSelfProp({selfProp, proxy, memberProp, memberTrueVal, memberFalseVal, selfTrueVal}: this): void {
+        subscribe(this.#target, selfProp!, () => {
             proxy.downwardFlowInProgress = true;
+            let val: any;
+            if((<any>proxy)[selfProp!] === selfTrueVal){
+                val = memberTrueVal;
+            }else{
+                val = memberFalseVal;
+            }
             (proxy.getRootNode() as DocumentFragment).querySelectorAll(proxy.memberAttr!.replace('be-', 'is-')).forEach((el) => {
-                console.log({el, val, prop});
-                (<any>el)[prop!] = val;
+                //console.log({el, val, prop});
+                (<any>el)[memberProp!] = val;
             });
             proxy.downwardFlowInProgress = false;
-        });
+        })
     }
 
-    evaluateState({memberAttr, memberProp, memberFalseVal, memberTrueVal, proxy}: this): void {
+    async evaluateState({memberAttr, memberProp, memberFalseVal, memberTrueVal, proxy}: this): Promise<void> {
         const elements = Array.from((proxy.getRootNode() as DocumentFragment).querySelectorAll('[' + memberAttr!.replace('be-', 'is-') + ']'));
         let hasTrue = false;
         let hasFalse = false;
         let isIndeterminate = false;
         for(const element of elements){
+            if(element.localName.includes('-')) await customElements.whenDefined(element.localName);
             const aElement = element as any;
             if(aElement[memberProp!] === memberTrueVal){
                 hasTrue = true;
@@ -96,7 +120,7 @@ define<BeConsensualProps & BeDecoratedProps<BeConsensualProps, BeConsensualActio
             virtualProps: [
                 'memberAttr', 'memberProp', 'memberTrueVal', 'memberFalseVal', 
                 'selfProp', 'selfTrueVal', 'selfFalseVal', 'selfIndeterminateProp', 'selfIndeterminateTrueVal', 'selfIndeterminateFalseVal',
-                'matchCount', 'matchCountEcho', 'debounceDelay', 'changeEvent', 'downwardFlowInProgress'
+                'matchCount', 'matchCountEcho', 'debounceDelay', 'downwardFlowInProgress'
             ],
             proxyPropDefaults:{
                 memberAttr: 'be-consensual-member',
@@ -111,16 +135,22 @@ define<BeConsensualProps & BeDecoratedProps<BeConsensualProps, BeConsensualActio
                 selfIndeterminateProp: 'indeterminate',
                 selfIndeterminateTrueVal: true,
                 selfIndeterminateFalseVal: false,
-                changeEvent: 'input',
+                //changeEvent: 'input',
                 downwardFlowInProgress: false,
             },
+            intro: 'intro',
         },
         actions: {
-            onMemberAttr: 'memberAttr',
+            onMemberOptions: {
+                ifAllOf: ['memberAttr', 'memberProp']
+            },
             onMatchCountEchoChange: {
                 ifAllOf: ['matchCount', 'matchCountEcho'],
             },
-            onChangeEvent: 'changeEvent'
+            onSelfProp: {
+                ifAllOf: ['selfProp', 'memberProp']
+            }
+            //onChangeEvent: 'changeEvent'
         }
     },
     complexPropDefaults:{

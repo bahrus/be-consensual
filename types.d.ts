@@ -14,7 +14,6 @@ export interface BeConsensualVirtualProps{
     matchCount?: number,
     matchCountEcho?: number,
     debounceDelay?: number,
-    changeEvent?: string,
     downwardFlowInProgress?: boolean,
 }
 
@@ -23,9 +22,9 @@ export interface BeConsensualProps extends BeConsensualVirtualProps{
 }
 
 export interface BeConsensualActions{
-    onMemberAttr(self: this): void;
+    onMemberOptions(self: this): void;
     evaluateState(self: this): void;
     onMatchCountEchoChange(self: this): void;
-    onChangeEvent(self: this): void;
-    // intro(proxy: Element & BeConsensualVirtualProps, target: Element, beDecorProps: BeDecoratedProps): void;
+    onSelfProp(self: this): void;
+    intro(proxy: Element & BeConsensualVirtualProps, target: Element, beDecorProps: BeDecoratedProps): void;
 }
