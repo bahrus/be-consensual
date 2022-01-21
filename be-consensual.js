@@ -34,21 +34,10 @@ export class BeConsensualController {
             return;
         this.evaluateState(this);
     }
-    // onChangeEvent({proxy, changeEvent, selfTrueVal, selfFalseVal, selfProp, memberTrueVal: trueVal, memberFalseVal: falseVal, memberProp: prop}: this): void {
-    //     proxy.addEventListener(changeEvent!, (e) => {
-    //         console.log({changeEvent, selfTrueVal, selfFalseVal, selfProp, trueVal, falseVal, prop});
-    //         const selfVal = (<any>proxy)[selfProp!];
-    //         const val = selfVal === selfTrueVal ? trueVal : falseVal;
-    //         console.log(val);
-    //         proxy.downwardFlowInProgress = true;
-    //         (proxy.getRootNode() as DocumentFragment).querySelectorAll(proxy.memberAttr!.replace('be-', 'is-')).forEach((el) => {
-    //             console.log({el, val, prop});
-    //             (<any>el)[prop!] = val;
-    //         });
-    //         proxy.downwardFlowInProgress = false;
-    //     });
-    // }
-    onSelfProp({ selfProp, proxy, memberProp, memberTrueVal, memberFalseVal, selfTrueVal }) {
+    get memberSelector() {
+        return '[' + this.memberAttr.replace('be-', 'is-') + ']';
+    }
+    onSelfProp({ selfProp, proxy, memberProp, memberTrueVal, memberFalseVal, selfTrueVal, memberSelector }) {
         subscribe(this.#target, selfProp, () => {
             proxy.downwardFlowInProgress = true;
             let val;
@@ -58,15 +47,14 @@ export class BeConsensualController {
             else {
                 val = memberFalseVal;
             }
-            proxy.getRootNode().querySelectorAll(proxy.memberAttr.replace('be-', 'is-')).forEach((el) => {
-                //console.log({el, val, prop});
+            proxy.getRootNode().querySelectorAll(memberSelector).forEach((el) => {
                 el[memberProp] = val;
             });
             proxy.downwardFlowInProgress = false;
         });
     }
-    async evaluateState({ memberAttr, memberProp, memberFalseVal, memberTrueVal, proxy }) {
-        const elements = Array.from(proxy.getRootNode().querySelectorAll('[' + memberAttr.replace('be-', 'is-') + ']'));
+    async evaluateState({ memberAttr, memberProp, memberFalseVal, memberTrueVal, proxy, memberSelector }) {
+        const elements = Array.from(proxy.getRootNode().querySelectorAll(memberSelector));
         let hasTrue = false;
         let hasFalse = false;
         let isIndeterminate = false;
