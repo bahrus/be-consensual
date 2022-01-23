@@ -2,13 +2,16 @@ import {define, BeDecoratedProps} from 'be-decorated/be-decorated.js';
 import {BeConsensualVirtualProps, BeConsensualActions, BeConsensualProps} from './types';
 import {register} from 'be-hive/register.js';
 import {addCSSListener} from 'xtal-element/lib/observeCssSelector.js';
-import {subscribe} from 'trans-render/lib/subscribe.js';
+import {subscribe, unsubscribe} from 'trans-render/lib/subscribe.js';
 
 
 export class BeConsensualController implements BeConsensualActions{
     #target!: Element;
     intro(proxy: Element & BeConsensualVirtualProps, target: Element, beDecorProps: BeDecoratedProps){
         this.#target = target;
+    }
+    finale(proxy: Element & BeConsensualVirtualProps, target: Element, beDecorProps: BeDecoratedProps){
+        unsubscribe(proxy);
     }
     onMemberOptions({proxy, memberAttr, debounceDelay, memberProp}: this): void {
         if(!proxy.id){
@@ -127,6 +130,7 @@ define<BeConsensualProps & BeDecoratedProps<BeConsensualProps, BeConsensualActio
                 downwardFlowInProgress: false,
             },
             intro: 'intro',
+            finale: 'finale',
         },
         actions: {
             onMemberOptions: {

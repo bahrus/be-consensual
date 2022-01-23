@@ -27,4 +27,5 @@ export interface BeConsensualActions{
     onMatchCountEchoChange(self: this): void;
     onSelfProp(self: this): void;
     intro(proxy: Element & BeConsensualVirtualProps, target: Element, beDecorProps: BeDecoratedProps): void;
+    finale(proxy: Element & BeConsensualVirtualProps, target: Element, beDecorProps: BeDecoratedProps): void;
 }
