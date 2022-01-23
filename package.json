@@ -14,10 +14,10 @@
     "tri-state"
   ],
   "dependencies": {
-    "be-decorated": "0.0.64",
-    "be-hive": "0.0.19",
-    "trans-render": "0.0.447",
-    "xtal-element": "0.0.461"
+    "be-decorated": "0.0.65",
+    "be-hive": "0.0.20",
+    "trans-render": "0.0.448",
+    "xtal-element": "0.0.462"
   },
   "devDependencies": {
     "xtal-test": "0.0.54",
