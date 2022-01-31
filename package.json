@@ -14,13 +14,13 @@
     "tri-state"
   ],
   "dependencies": {
-    "be-decorated": "0.0.65",
-    "be-hive": "0.0.20",
-    "trans-render": "0.0.448",
-    "xtal-element": "0.0.462"
+    "be-decorated": "0.0.72",
+    "be-hive": "0.0.21",
+    "trans-render": "0.0.453",
+    "xtal-element": "0.0.463"
   },
   "devDependencies": {
-    "xtal-test": "0.0.54",
+    "xtal-test": "0.0.55",
     "@skypack/package-check": "0.2.2",
     "@custom-elements-manifest/analyzer": "0.5.7"
   },
