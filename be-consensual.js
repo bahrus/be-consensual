@@ -1,23 +1,27 @@
 import { define } from 'be-decorated/be-decorated.js';
 import { register } from 'be-hive/register.js';
-import { addCSSListener } from 'xtal-element/lib/observeCssSelector.js';
-import { subscribe } from 'trans-render/lib/subscribe.js';
 export class BeConsensualController {
     #target;
     intro(proxy, target, beDecorProps) {
         this.#target = target;
     }
-    onMemberOptions({ proxy, memberAttr, debounceDelay, memberProp }) {
+    async finale(proxy, target, beDecorProps) {
+        const { unsubscribe } = await import('trans-render/lib/subscribe.js');
+        unsubscribe(proxy);
+    }
+    async onMemberOptions({ proxy, memberAttr, debounceDelay, memberProp }) {
         if (!proxy.id) {
             proxy.id = 'a_' + (new Date()).valueOf();
         }
         const id = proxy.id;
-        addCSSListener(id, proxy, `[${memberAttr}]`, (e) => {
+        const { addCSSListener } = await import('xtal-element/lib/observeCssSelector.js');
+        addCSSListener(id, proxy, `[${memberAttr}]`, async (e) => {
             if (e.animationName !== id)
                 return;
             const target = e.target;
             target.setAttribute(memberAttr.replace('be-', 'is-'), '');
             target.removeAttribute(memberAttr);
+            const { subscribe } = await import('trans-render/lib/subscribe.js');
             subscribe(target, memberProp, () => {
                 if (proxy.downwardFlowInProgress)
                     return;
@@ -37,7 +41,8 @@ export class BeConsensualController {
     get memberSelector() {
         return '[' + this.memberAttr.replace('be-', 'is-') + ']';
     }
-    onSelfProp({ selfProp, proxy, memberProp, memberTrueVal, memberFalseVal, selfTrueVal, memberSelector }) {
+    async onSelfProp({ selfProp, proxy, memberProp, memberTrueVal, memberFalseVal, selfTrueVal, memberSelector }) {
+        const { subscribe } = await import('trans-render/lib/subscribe.js');
         subscribe(this.#target, selfProp, () => {
             proxy.downwardFlowInProgress = true;
             let val;
@@ -122,6 +127,7 @@ define({
                 downwardFlowInProgress: false,
             },
             intro: 'intro',
+            finale: 'finale',
         },
         actions: {
             onMemberOptions: {

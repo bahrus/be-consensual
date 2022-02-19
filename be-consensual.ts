@@ -1,8 +1,6 @@
 import {define, BeDecoratedProps} from 'be-decorated/be-decorated.js';
 import {BeConsensualVirtualProps, BeConsensualActions, BeConsensualProps} from './types';
 import {register} from 'be-hive/register.js';
-import {addCSSListener} from 'xtal-element/lib/observeCssSelector.js';
-import {subscribe, unsubscribe} from 'trans-render/lib/subscribe.js';
 
 
 export class BeConsensualController implements BeConsensualActions{
@@ -10,19 +8,22 @@ export class BeConsensualController implements BeConsensualActions{
     intro(proxy: Element & BeConsensualVirtualProps, target: Element, beDecorProps: BeDecoratedProps){
         this.#target = target;
     }
-    finale(proxy: Element & BeConsensualVirtualProps, target: Element, beDecorProps: BeDecoratedProps){
+    async finale(proxy: Element & BeConsensualVirtualProps, target: Element, beDecorProps: BeDecoratedProps){
+        const {unsubscribe} = await import('trans-render/lib/subscribe.js');
         unsubscribe(proxy);
     }
-    onMemberOptions({proxy, memberAttr, debounceDelay, memberProp}: this): void {
+    async onMemberOptions({proxy, memberAttr, debounceDelay, memberProp}: this) {
         if(!proxy.id){
             proxy.id = 'a_' + (new Date()).valueOf();
         }
         const id  = proxy.id;
-        addCSSListener(id, proxy, `[${memberAttr}]`, (e: AnimationEvent) => {
+        const {addCSSListener} = await import('xtal-element/lib/observeCssSelector.js');
+        addCSSListener(id, proxy, `[${memberAttr}]`, async (e: AnimationEvent) => {
             if (e.animationName !== id) return;
             const target = e.target as Element;
             target.setAttribute(memberAttr!.replace('be-', 'is-'), '');
             target.removeAttribute(memberAttr!);
+            const {subscribe} = await import('trans-render/lib/subscribe.js');
             subscribe(target, memberProp!, () => {
                 if(proxy.downwardFlowInProgress) return;
                 this.evaluateState(this);
@@ -44,7 +45,8 @@ export class BeConsensualController implements BeConsensualActions{
         return '[' + this.memberAttr!.replace('be-', 'is-') + ']';
     }
 
-    onSelfProp({selfProp, proxy, memberProp, memberTrueVal, memberFalseVal, selfTrueVal, memberSelector}: this): void {
+    async onSelfProp({selfProp, proxy, memberProp, memberTrueVal, memberFalseVal, selfTrueVal, memberSelector}: this){
+        const {subscribe} = await import('trans-render/lib/subscribe.js');
         subscribe(this.#target, selfProp!, () => {
             proxy.downwardFlowInProgress = true;
             let val: any;
