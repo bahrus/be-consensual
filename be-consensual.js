@@ -9,7 +9,8 @@ export class BeConsensualController {
         const { unsubscribe } = await import('trans-render/lib/subscribe.js');
         unsubscribe(proxy);
     }
-    async onMemberOptions({ proxy, memberAttr, debounceDelay, memberProp }) {
+    async onMemberOptions(pp) {
+        const { proxy, memberAttr, debounceDelay, memberProp } = pp;
         if (!proxy.id) {
             proxy.id = 'a_' + (new Date()).valueOf();
         }
@@ -25,7 +26,7 @@ export class BeConsensualController {
             subscribe(target, memberProp, () => {
                 if (proxy.downwardFlowInProgress)
                     return;
-                this.evaluateState(this);
+                this.evaluateState(pp);
             });
             proxy.matchCount++;
             setTimeout(() => {
@@ -33,15 +34,17 @@ export class BeConsensualController {
             }, debounceDelay);
         });
     }
-    onMatchCountEchoChange({ matchCountEcho, matchCount }) {
+    onMatchCountEchoChange(pp) {
+        const { matchCountEcho, matchCount } = pp;
         if (matchCountEcho !== matchCount)
             return;
-        this.evaluateState(this);
+        this.evaluateState(pp);
     }
-    get memberSelector() {
-        return '[' + this.memberAttr.replace('be-', 'is-') + ']';
+    getMemberSelector({ memberAttr }) {
+        return '[' + memberAttr.replace('be-', 'is-') + ']';
     }
-    async onSelfProp({ selfProp, proxy, memberProp, memberTrueVal, memberFalseVal, selfTrueVal, memberSelector }) {
+    async onSelfProp(pp) {
+        const { selfProp, proxy, memberProp, memberTrueVal, memberFalseVal, selfTrueVal } = pp;
         const { subscribe } = await import('trans-render/lib/subscribe.js');
         subscribe(this.#target, selfProp, () => {
             proxy.downwardFlowInProgress = true;
@@ -52,13 +55,16 @@ export class BeConsensualController {
             else {
                 val = memberFalseVal;
             }
+            const memberSelector = this.getMemberSelector(pp);
             proxy.getRootNode().querySelectorAll(memberSelector).forEach((el) => {
                 el[memberProp] = val;
             });
             proxy.downwardFlowInProgress = false;
         });
     }
-    async evaluateState({ memberAttr, memberProp, memberFalseVal, memberTrueVal, proxy, memberSelector }) {
+    async evaluateState(pp) {
+        const { memberAttr, memberProp, memberFalseVal, memberTrueVal, proxy } = pp;
+        const memberSelector = this.getMemberSelector(pp);
         const elements = Array.from(proxy.getRootNode().querySelectorAll(memberSelector));
         let hasTrue = false;
         let hasFalse = false;

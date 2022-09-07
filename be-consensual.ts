@@ -1,18 +1,19 @@
 import {define, BeDecoratedProps} from 'be-decorated/be-decorated.js';
-import {BeConsensualVirtualProps, BeConsensualActions, BeConsensualProps} from './types';
+import {VirtualProps, Actions, Proxy, PP} from './types';
 import {register} from 'be-hive/register.js';
 
 
-export class BeConsensualController implements BeConsensualActions{
+export class BeConsensualController implements Actions{
     #target!: Element;
-    intro(proxy: Element & BeConsensualVirtualProps, target: Element, beDecorProps: BeDecoratedProps){
+    intro(proxy: Proxy, target: Element, beDecorProps: BeDecoratedProps){
         this.#target = target;
     }
-    async finale(proxy: Element & BeConsensualVirtualProps, target: Element, beDecorProps: BeDecoratedProps){
+    async finale(proxy: Proxy, target: Element, beDecorProps: BeDecoratedProps){
         const {unsubscribe} = await import('trans-render/lib/subscribe.js');
         unsubscribe(proxy);
     }
-    async onMemberOptions({proxy, memberAttr, debounceDelay, memberProp}: this) {
+    async onMemberOptions(pp: PP) {
+        const {proxy, memberAttr, debounceDelay, memberProp} = pp;
         if(!proxy.id){
             proxy.id = 'a_' + (new Date()).valueOf();
         }
@@ -26,7 +27,7 @@ export class BeConsensualController implements BeConsensualActions{
             const {subscribe} = await import('trans-render/lib/subscribe.js');
             subscribe(target, memberProp!, () => {
                 if(proxy.downwardFlowInProgress) return;
-                this.evaluateState(this);
+                this.evaluateState(pp);
             });
             proxy.matchCount!++;
             setTimeout(() => {
@@ -36,16 +37,18 @@ export class BeConsensualController implements BeConsensualActions{
         });
     }
 
-    onMatchCountEchoChange({matchCountEcho, matchCount}: this): void {
+    onMatchCountEchoChange(pp: PP) {
+        const {matchCountEcho, matchCount} = pp;
         if(matchCountEcho !== matchCount) return;
-        this.evaluateState(this);
+        this.evaluateState(pp);
     }
 
-    get memberSelector(){
-        return '[' + this.memberAttr!.replace('be-', 'is-') + ']';
+    getMemberSelector({memberAttr}: PP){
+        return '[' + memberAttr!.replace('be-', 'is-') + ']';
     }
 
-    async onSelfProp({selfProp, proxy, memberProp, memberTrueVal, memberFalseVal, selfTrueVal, memberSelector}: this){
+    async onSelfProp(pp: PP){
+        const {selfProp, proxy, memberProp, memberTrueVal, memberFalseVal, selfTrueVal} = pp;
         const {subscribe} = await import('trans-render/lib/subscribe.js');
         subscribe(this.#target, selfProp!, () => {
             proxy.downwardFlowInProgress = true;
@@ -55,6 +58,7 @@ export class BeConsensualController implements BeConsensualActions{
             }else{
                 val = memberFalseVal;
             }
+            const memberSelector = this.getMemberSelector(pp);
             (proxy.getRootNode() as DocumentFragment).querySelectorAll(memberSelector).forEach((el) => {
                 (<any>el)[memberProp!] = val;
             });
@@ -62,7 +66,9 @@ export class BeConsensualController implements BeConsensualActions{
         })
     }
 
-    async evaluateState({memberAttr, memberProp, memberFalseVal, memberTrueVal, proxy, memberSelector}: this): Promise<void> {
+    async evaluateState(pp: PP): Promise<void> {
+        const {memberAttr, memberProp, memberFalseVal, memberTrueVal, proxy} = pp;
+        const memberSelector = this.getMemberSelector(pp);
         const elements = Array.from((proxy.getRootNode() as DocumentFragment).querySelectorAll(memberSelector));
         let hasTrue = false;
         let hasFalse = false;
@@ -96,7 +102,6 @@ export class BeConsensualController implements BeConsensualActions{
     }
 }
 
-export interface BeConsensualController extends BeConsensualProps{}
 
 const tagName = 'be-consensual';
 
@@ -104,7 +109,7 @@ const ifWantsToBe = 'consensual';
 
 const upgrade = '*';
 
-define<BeConsensualProps & BeDecoratedProps<BeConsensualProps, BeConsensualActions>, BeConsensualActions>({
+define<Proxy & BeDecoratedProps<Proxy, Actions>, Actions>({
     config:{
         tagName,
         propDefaults:{
@@ -131,9 +136,11 @@ define<BeConsensualProps & BeDecoratedProps<BeConsensualProps, BeConsensualActio
                 //changeEvent: 'input',
                 downwardFlowInProgress: false,
             },
+            
             intro: 'intro',
             finale: 'finale',
         },
+        
         actions: {
             onMemberOptions: {
                 ifAllOf: ['memberAttr', 'memberProp']
