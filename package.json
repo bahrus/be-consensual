@@ -19,9 +19,10 @@
     "trans-render": "0.0.628"
   },
   "devDependencies": {
-    "xtal-test": "0.0.56",
+    "may-it-serve": "0.0.3",
+    "@playwright/test": "1.27.1",
     "@skypack/package-check": "0.2.2",
-    "@custom-elements-manifest/analyzer": "0.5.7"
+    "@custom-elements-manifest/analyzer": "0.6.4"
   },
   "exports": {
     ".": "./be-consensual.js",
@@ -32,8 +33,8 @@
   ],
   "types": "./types.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "serve": "node node_modules/xtal-test/serve.js",
+    "test": "playwright test",
+    "serve": "node node_modules/may-it-serve/serve.js",
     "package-check": "package-check",
     "doc": "custom-elements-manifest analyze"
   },
@@ -41,7 +42,7 @@
     "type": "git",
     "url": "git+https://github.com/bahrus/be-consensual.git"
   },
-  "author": "",
+  "author": "anderson.bruce.b@gmail.com (Bruce Anderson)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/bahrus/be-consensual/issues"
