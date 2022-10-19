@@ -1,34 +1,42 @@
-import {define, BeDecoratedProps} from 'be-decorated/be-decorated.js';
+import {define, BeDecoratedProps} from 'be-decorated/DE.js';
 import {VirtualProps, Actions, Proxy, PP} from './types';
 import {register} from 'be-hive/register.js';
 
 
 export class BeConsensualController implements Actions{
-    #target!: Element;
-    intro(proxy: Proxy, target: Element, beDecorProps: BeDecoratedProps){
-        this.#target = target;
-    }
+
     async finale(proxy: Proxy, target: Element, beDecorProps: BeDecoratedProps){
         const {unsubscribe} = await import('trans-render/lib/subscribe.js');
         unsubscribe(proxy);
     }
     async onMemberOptions(pp: PP) {
-        const {proxy, memberAttr, debounceDelay, memberProp} = pp;
-        if(!proxy.id){
-            proxy.id = 'a_' + (new Date()).valueOf();
+        console.log('onMemberOptions');
+        const {proxy, self, memberAttr, debounceDelay, memberProp, memberEvent} = pp;
+        if(!self.id){
+            self.id = 'a_' + (new Date()).valueOf();
         }
-        const id  = proxy.id;
-        const {addCSSListener} = await import('xtal-element/lib/observeCssSelector.js');
-        addCSSListener(id, proxy, `[${memberAttr}]`, async (e: AnimationEvent) => {
+        const id  = self.id;
+        const {addCSSListener} = await import('trans-render/lib/observeCssSelector.js');
+        addCSSListener(id, self, `[${memberAttr}]`, async (e: AnimationEvent) => {
             if (e.animationName !== id) return;
             const target = e.target as Element;
             target.setAttribute(memberAttr!.replace('be-', 'is-'), '');
             target.removeAttribute(memberAttr!);
-            const {subscribe} = await import('trans-render/lib/subscribe.js');
-            subscribe(target, memberProp!, () => {
-                if(proxy.downwardFlowInProgress) return;
-                this.evaluateState(pp);
-            });
+            if(memberEvent !== undefined){
+                target.addEventListener(memberEvent, e => {
+                    if(proxy.downwardFlowInProgress) return;
+                    this.evaluateState(pp);
+                });
+            }else{
+                const {subscribe} = await import('trans-render/lib/subscribe.js');
+                console.log('subscribe', {target, memberProp});
+                subscribe(target, memberProp!, () => {
+                    console.log('onSubscribe');
+                    if(proxy.downwardFlowInProgress) return;
+                    this.evaluateState(pp);
+                });
+            }
+
             proxy.matchCount!++;
             setTimeout(() => {
                 
@@ -48,9 +56,9 @@ export class BeConsensualController implements Actions{
     }
 
     async onSelfProp(pp: PP){
-        const {selfProp, proxy, memberProp, memberTrueVal, memberFalseVal, selfTrueVal} = pp;
+        const {selfProp, proxy, memberProp, memberTrueVal, memberFalseVal, selfTrueVal, self} = pp;
         const {subscribe} = await import('trans-render/lib/subscribe.js');
-        subscribe(this.#target, selfProp!, () => {
+        subscribe(self, selfProp!, () => {
             proxy.downwardFlowInProgress = true;
             let val: any;
             if((<any>proxy)[selfProp!] === selfTrueVal){
@@ -116,7 +124,7 @@ define<Proxy & BeDecoratedProps<Proxy, Actions>, Actions>({
             ifWantsToBe,
             upgrade,
             virtualProps: [
-                'memberAttr', 'memberProp', 'memberTrueVal', 'memberFalseVal', 
+                'memberAttr', 'memberProp', 'memberTrueVal', 'memberFalseVal', 'memberEvent', 'selfEvent',
                 'selfProp', 'selfTrueVal', 'selfFalseVal', 'selfIndeterminateProp', 'selfIndeterminateTrueVal', 'selfIndeterminateFalseVal',
                 'matchCount', 'matchCountEcho', 'debounceDelay', 'downwardFlowInProgress'
             ],
@@ -125,6 +133,7 @@ define<Proxy & BeDecoratedProps<Proxy, Actions>, Actions>({
                 matchCount: 0,
                 matchCountEcho: 0,
                 memberProp: 'checked',
+                memberEvent: 'input',
                 memberTrueVal: true,
                 memberFalseVal: false,
                 selfProp: 'checked',
@@ -133,17 +142,15 @@ define<Proxy & BeDecoratedProps<Proxy, Actions>, Actions>({
                 selfIndeterminateProp: 'indeterminate',
                 selfIndeterminateTrueVal: true,
                 selfIndeterminateFalseVal: false,
-                //changeEvent: 'input',
+                selfEvent: 'input',
                 downwardFlowInProgress: false,
             },
-            
-            intro: 'intro',
             finale: 'finale',
         },
         
         actions: {
             onMemberOptions: {
-                ifAllOf: ['memberAttr', 'memberProp']
+                ifAllOf: ['memberAttr']
             },
             onMatchCountEchoChange: {
                 ifAllOf: ['matchCount', 'matchCountEcho'],
@@ -151,7 +158,6 @@ define<Proxy & BeDecoratedProps<Proxy, Actions>, Actions>({
             onSelfProp: {
                 ifAllOf: ['selfProp', 'memberProp']
             }
-            //onChangeEvent: 'changeEvent'
         }
     },
     complexPropDefaults:{

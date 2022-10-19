@@ -5,7 +5,9 @@ export interface EndUserProps {
     memberProp?: string,
     memberTrueVal?: any,
     memberFalseVal?: any,
+    memberEvent?: string,
     selfProp?: string,
+    selfEvent?: string,
     selfIndeterminateProp?: string,
     selfTrueVal?: any,
     selfFalseVal?: any,
@@ -31,6 +33,5 @@ export interface Actions{
     evaluateState(pp: PP): void;
     onMatchCountEchoChange(pp: PP): void;
     onSelfProp(pp: PP): void;
-    intro(proxy: Proxy, target: Element, beDecorProps: BeDecoratedProps): void;
     finale(proxy: Proxy, target: Element, beDecorProps: BeDecoratedProps): void;
 }
