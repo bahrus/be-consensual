@@ -56,22 +56,33 @@ export class BeConsensualController implements Actions{
     }
 
     async onSelfProp(pp: PP){
-        const {selfProp, proxy, memberProp, memberTrueVal, memberFalseVal, selfTrueVal, self} = pp;
-        const {subscribe} = await import('trans-render/lib/subscribe.js');
-        subscribe(self, selfProp!, () => {
-            proxy.downwardFlowInProgress = true;
-            let val: any;
-            if((<any>proxy)[selfProp!] === selfTrueVal){
-                val = memberTrueVal;
-            }else{
-                val = memberFalseVal;
-            }
-            const memberSelector = this.getMemberSelector(pp);
-            (proxy.getRootNode() as DocumentFragment).querySelectorAll(memberSelector).forEach((el) => {
-                (<any>el)[memberProp!] = val;
+        const {selfProp, self, selfEvent} = pp;
+        if(selfEvent !== undefined){
+            self.addEventListener(selfEvent, e => {
+                this.passDown(pp);
             });
-            proxy.downwardFlowInProgress = false;
-        })
+        }else{
+            const {subscribe} = await import('trans-render/lib/subscribe.js');
+            subscribe(self, selfProp!, () => {
+                this.passDown(pp);
+            });
+        }
+    }
+
+    passDown(pp: PP){
+        const {selfProp, proxy, memberProp, memberTrueVal, memberFalseVal, selfTrueVal, self, selfEvent} = pp;
+        proxy.downwardFlowInProgress = true;
+        let val: any;
+        if((<any>proxy)[selfProp!] === selfTrueVal){
+            val = memberTrueVal;
+        }else{
+            val = memberFalseVal;
+        }
+        const memberSelector = this.getMemberSelector(pp);
+        (proxy.getRootNode() as DocumentFragment).querySelectorAll(memberSelector).forEach((el) => {
+            (<any>el)[memberProp!] = val;
+        });
+        proxy.downwardFlowInProgress = false;
     }
 
     async evaluateState(pp: PP): Promise<void> {
@@ -129,13 +140,14 @@ define<Proxy & BeDecoratedProps<Proxy, Actions>, Actions>({
                 'matchCount', 'matchCountEcho', 'debounceDelay', 'downwardFlowInProgress'
             ],
             proxyPropDefaults:{
-                memberAttr: 'be-consensual-member',
-                matchCount: 0,
-                matchCountEcho: 0,
                 memberProp: 'checked',
                 memberEvent: 'input',
                 memberTrueVal: true,
                 memberFalseVal: false,
+                memberAttr: 'be-consensual-member',
+                matchCount: 0,
+                matchCountEcho: 0,
+ 
                 selfProp: 'checked',
                 selfTrueVal: true,
                 selfFalseVal: false,
@@ -150,7 +162,7 @@ define<Proxy & BeDecoratedProps<Proxy, Actions>, Actions>({
         
         actions: {
             onMemberOptions: {
-                ifAllOf: ['memberAttr']
+                ifAllOf: ['memberAttr'],
             },
             onMatchCountEchoChange: {
                 ifAllOf: ['matchCount', 'matchCountEcho'],
