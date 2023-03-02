@@ -14,13 +14,13 @@
     "tri-state"
   ],
   "dependencies": {
-    "be-decorated": "0.0.182",
-    "be-hive": "0.0.76",
-    "trans-render": "0.0.628"
+    "be-decorated": "0.0.231",
+    "be-hive": "0.0.82",
+    "trans-render": "0.0.668"
   },
   "devDependencies": {
-    "may-it-serve": "0.0.3",
-    "@playwright/test": "1.27.1",
+    "may-it-serve": "0.0.4",
+    "@playwright/test": "1.31.1",
     "@skypack/package-check": "0.2.2",
     "@custom-elements-manifest/analyzer": "0.6.4"
   },

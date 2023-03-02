@@ -147,7 +147,6 @@ define<Proxy & BeDecoratedProps<Proxy, Actions>, Actions>({
                 memberAttr: 'be-consensual-member',
                 matchCount: 0,
                 matchCountEcho: 0,
- 
                 selfProp: 'checked',
                 selfTrueVal: true,
                 selfFalseVal: false,
@@ -163,6 +162,7 @@ define<Proxy & BeDecoratedProps<Proxy, Actions>, Actions>({
         actions: {
             onMemberOptions: {
                 ifAllOf: ['memberAttr'],
+                ifAtLeastOneOf: ['memberEvent', 'memberProp']
             },
             onMatchCountEchoChange: {
                 ifAllOf: ['matchCount', 'matchCountEcho'],

@@ -44,6 +44,17 @@ If the element be-consensual is adorning is checked, then all the elements match
 
 The property to set is configurable (prop), as are the true and false values.
 
+## Hemingway Notation [TODO]
+
+```html
+<input type=checkbox be-consensual='
+    Monitor for be consensual member attributed instances.
+    If checked property of all said instances is true set checked property of adorned element to true.
+    If checked property of all said instances is false set checked property of adorned element to false.
+    If checked property of all said instances is mixed set checked property of adorned element to indeterminate.
+'>
+```
+
 ## Viewing Locally
 
 1.  Install git.

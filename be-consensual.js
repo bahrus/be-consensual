@@ -157,6 +157,7 @@ define({
         actions: {
             onMemberOptions: {
                 ifAllOf: ['memberAttr'],
+                ifAtLeastOneOf: ['memberEvent', 'memberProp']
             },
             onMatchCountEchoChange: {
                 ifAllOf: ['matchCount', 'matchCountEcho'],
