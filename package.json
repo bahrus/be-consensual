@@ -14,15 +14,14 @@
     "tri-state"
   ],
   "dependencies": {
-    "be-decorated": "0.0.231",
-    "be-hive": "0.0.82",
-    "trans-render": "0.0.668"
+    "be-enhanced": "0.0.58",
+    "be-hive": "0.0.129",
+    "trans-render": "0.0.724",
+    "xtal-element": "0.0.581"
   },
   "devDependencies": {
-    "may-it-serve": "0.0.4",
-    "@playwright/test": "1.31.1",
-    "@skypack/package-check": "0.2.2",
-    "@custom-elements-manifest/analyzer": "0.6.4"
+    "may-it-serve": "0.0.6",
+    "@playwright/test": "1.40.1"
   },
   "exports": {
     ".": "./be-consensual.js",
@@ -35,8 +34,8 @@
   "scripts": {
     "test": "playwright test",
     "serve": "node node_modules/may-it-serve/serve.js",
-    "package-check": "package-check",
-    "doc": "custom-elements-manifest analyze"
+    "safari": "npx playwright wk http://localhost:3030",
+    "update": "ncu -u && npm install"
   },
   "repository": {
     "type": "git",
